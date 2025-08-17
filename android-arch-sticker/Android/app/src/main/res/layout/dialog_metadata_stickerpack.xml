@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@drawable/background_dialog_bottom"
+    android:clipToPadding="false"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:id="@+id/title_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="@string/dialog_metadata_sticker_pack"
+        android:background="@android:color/transparent"
+        android:textColor="@color/catppuccin_text"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/input_sticker_pack_name"
+        android:textColorHint="@color/catppuccin_subtext0">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/et_user_input"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:focusable="true"
+            android:maxLength="20"
+            android:focusableInTouchMode="true"
+            android:textColor="@color/catppuccin_text"
+            android:textColorHint="@color/catppuccin_subtext0" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <ImageButton
+        android:id="@+id/open_gallery"
+        android:layout_width="72dp"
+        android:layout_height="72dp"
+        android:layout_marginTop="24dp"
+        android:background="@drawable/background_rounded_button_open_gallery"
+        android:backgroundTint="@color/catppuccin_mauve"
+        android:contentDescription="@string/button_open_gallery_description"
+        android:padding="16dp"
+        android:scaleType="centerInside"
+        app:tint="@color/catppuccin_base"
+        android:src="@drawable/ic_image_gallery" />
+
+</LinearLayout>

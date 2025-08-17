@@ -9,6 +9,7 @@
 package br.arch.sticker.view.feature.stickerpack.list.viewholder;
 
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -23,11 +24,13 @@ public class StickerPackListViewHolder extends RecyclerView.ViewHolder {
     public final TextView titleView;
     public final TextView publisherView;
     public final TextView stickerPackListItemDot;
-    public final TextView filesizeView;
+    public final TextView fileSizeView;
     public final ImageView addButton;
     public final ImageView animatedStickerPackIndicator;
     public final LinearLayout imageRowView;
+    public final LinearLayout stickerPackInfo;
     public final TextView alertMessage;
+    public final FrameLayout contentFrame;
 
     public StickerPackListViewHolder(final View itemView) {
         super(itemView);
@@ -35,10 +38,12 @@ public class StickerPackListViewHolder extends RecyclerView.ViewHolder {
         titleView = itemView.findViewById(R.id.sticker_pack_title);
         publisherView = itemView.findViewById(R.id.sticker_pack_publisher);
         stickerPackListItemDot = itemView.findViewById(R.id.sticker_pack_list_item_dot);
-        filesizeView = itemView.findViewById(R.id.sticker_pack_filesize);
+        fileSizeView = itemView.findViewById(R.id.sticker_pack_filesize);
         addButton = itemView.findViewById(R.id.add_button_on_list);
         imageRowView = itemView.findViewById(R.id.sticker_packs_list_item_image_list);
+        stickerPackInfo = itemView.findViewById(R.id.sticker_pack_info);
         animatedStickerPackIndicator = itemView.findViewById(R.id.sticker_pack_animation_indicator);
         alertMessage = itemView.findViewById(R.id.alert_message);
+        contentFrame = itemView.findViewById(R.id.content_frame);
     }
 }
