@@ -9,23 +9,23 @@ on:
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
-    
+
     permissions:
-      contents: write 
-    
+      contents: write
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-    
+
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
-    
+
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
-    
+
     - name: Cache Gradle dependencies
       uses: actions/cache@v3
       with:
@@ -36,16 +36,10 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gradle-
 
-    - name: Setup Git LFS
-      run: | 
-        git lfs install
-        git lfs pull
-        git lfs fetch
-    
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
-      working-directory:  android-arch-sticker/Android
-    
+      working-directory: android-arch-sticker/Android
+
     - name: Decode keystore
       run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > my-release-key.keystore
       working-directory: android-arch-sticker/Android/app
@@ -58,13 +52,14 @@ jobs:
         KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
         KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
-    - name: List generated files
-      run: ls -R
-    
+    - name: List generated APKs
+      run: ls -lh app/build/outputs/apk/release/
+      working-directory: android-arch-sticker/Android
+
     - name: Get version from tag
       id: get_version
       run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-    
+
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
       with:
@@ -76,21 +71,11 @@ jobs:
           **Mudanças nesta versão:**
           - Aplicativo cria figurinhas animadas e estáticas e possuí um editor simples imbuído ao gerar uma só figurinha. 
           
-          **Downloads disponíveis:**
-          - **APK Universal**: Compatível com todos os dispositivos
-          - **APK ARM64**: Para dispositivos 64-bit (mais modernos)
-          - **APK ARMv7**: Para dispositivos 32-bit (mais antigos)
-          
-          **Como instalar:**
-          1. Baixe o APK Universal (recomendado)
-          2. Habilite "Instalar apps de fontes desconhecidas" nas configurações
-          3. Toque no APK baixado para instalar
-          
-          **Requisitos:**
-          - Android 5.0 (API 21) ou superior
+          **Download do APK:**
+          - APK Universal: Compatível com todos os dispositivos
         files: |
-            **/app/build/outputs/apk/release/*.apk
+          app/build/outputs/apk/release/*.apk
         draft: false
         prerelease: false
       env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
