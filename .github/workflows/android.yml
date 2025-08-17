@@ -68,7 +68,9 @@ jobs:
     
     # 8. Build Release APK
     - name: Build Release APK
-      run: ./gradlew assembleRelease
+      run: |
+        ./gradlew assembleRelease
+        ls Android/app/build/outputs/apk/release/
       working-directory: android-arch-sticker/Android
     
     # 9. Get version from tag
