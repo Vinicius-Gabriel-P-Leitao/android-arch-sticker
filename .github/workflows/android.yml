@@ -101,9 +101,9 @@ jobs:
           **Requisitos:**
           - Android 5.0 (API 21) ou superior
         files: |
-          Android/app/build/outputs/apk/release/app-universal-release.apk
-          Android/app/build/outputs/apk/release/app-arm64-v8a-release.apk
-          Android/app/build/outputs/apk/release/app-armeabi-v7a-release.apk
+          Android/app/build/outputs/apk/release/app-universal-release-unsigned.apk
+          Android/app/build/outputs/apk/release/app-arm64-v8a-release-unsigned.apk
+          Android/app/build/outputs/apk/release/app-armeabi-v7a-release-unsigned.apk
         draft: false
         prerelease: false
       env:
