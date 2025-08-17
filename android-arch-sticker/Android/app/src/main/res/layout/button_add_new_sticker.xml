@@ -12,4 +12,4 @@
     app:iconGravity="textStart"
     app:iconPadding="0dp"
     app:iconSize="@dimen/sticker_pack_details_button_size"
-    app:iconTint="@color/catppuccin_mauve" />
+    app:iconTint="@color/catppuccin_text" />

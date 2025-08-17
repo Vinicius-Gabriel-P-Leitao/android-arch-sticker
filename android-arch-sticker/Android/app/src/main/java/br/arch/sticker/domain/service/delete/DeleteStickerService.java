@@ -39,33 +39,24 @@ public class DeleteStickerService {
     public CallbackResult<Boolean> deleteStickerByPack(String stickerPackIdentifier, String fileName) {
         if (stickerPackIdentifier == null || fileName == null) {
             throw new DeleteStickerException(
-                    applicationTranslate.translate(R.string.error_delete_sticker_pack_id)
-                            .log(TAG_LOG, Level.ERROR).get(), ErrorCode.ERROR_PACK_DELETE_DB
-            );
+                    applicationTranslate.translate(R.string.error_delete_sticker_pack_id).log(TAG_LOG, Level.ERROR)
+                            .get(), ErrorCode.ERROR_PACK_DELETE_DB);
         }
 
         try {
-            Integer deletedSticker = deleteStickerPackRepo.deleteSticker(stickerPackIdentifier,
-                    fileName
-            );
+            Integer deletedSticker = deleteStickerPackRepo.deleteSticker(stickerPackIdentifier, fileName);
 
             if (deletedSticker > 0) {
-                Log.i(TAG_LOG,
-                        applicationTranslate.translate(R.string.information_sticker_deleted_success)
-                                .get()
-                );
+                Log.i(TAG_LOG, applicationTranslate.translate(R.string.information_sticker_deleted_success).get());
                 return CallbackResult.success(Boolean.TRUE);
             } else {
-                return CallbackResult.warning(
-                        applicationTranslate.translate(R.string.warn_no_sticker_deleted, fileName)
-                                .log(TAG_LOG, Level.WARN).get());
+                return CallbackResult.warning(applicationTranslate.translate(R.string.warn_no_sticker_deleted, fileName)
+                        .log(TAG_LOG, Level.WARN).get());
             }
         } catch (IllegalArgumentException | SQLiteException exception) {
             return CallbackResult.failure(new DeleteStickerException(
-                    applicationTranslate.translate(R.string.error_delete_sticker_db)
-                            .log(TAG_LOG, Level.ERROR).get(), exception,
-                    ErrorCode.ERROR_PACK_DELETE_DB
-            ));
+                    applicationTranslate.translate(R.string.error_delete_sticker_db).log(TAG_LOG, Level.ERROR).get(),
+                    exception, ErrorCode.ERROR_PACK_DELETE_DB));
         }
     }
 }

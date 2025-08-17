@@ -25,15 +25,19 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.format.Formatter;
+import android.util.Pair;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.FragmentManager;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -41,6 +45,8 @@ import com.google.android.material.button.MaterialButton;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -54,10 +60,17 @@ import br.arch.sticker.view.core.usecase.activity.StickerPackAddActivity;
 import br.arch.sticker.view.core.usecase.component.AlertStickerDialog;
 import br.arch.sticker.view.core.usecase.component.FormatStickerPopupWindow;
 import br.arch.sticker.view.feature.preview.adapter.StickerPreviewAdapter;
+import br.arch.sticker.view.feature.preview.viewmodel.StickerDetailsViewModel;
 import br.arch.sticker.view.feature.stickerpack.creation.activity.StickerPackCreationActivity;
-import br.arch.sticker.view.feature.stickerpack.metadata.activity.StickerPackMetadataActivity;
+import br.arch.sticker.view.main.EntryActivity;
 
 public class StickerPackDetailsActivity extends StickerPackAddActivity {
+    private enum Mode {
+        NORMAL, DELETE
+    }
+
+    private static final String TAG_LOG = StickerPackDetailsActivity.class.getSimpleName();
+
     public static final String EXTRA_STICKER_PACK_LICENSE_AGREEMENT = "sticker_pack_license_agreement";
     public static final String EXTRA_STICKER_PACK_PRIVACY_POLICY = "sticker_pack_privacy_policy";
     public static final String EXTRA_STICKER_PACK_AUTHORITY = "sticker_pack_authority";
@@ -73,10 +86,13 @@ public class StickerPackDetailsActivity extends StickerPackAddActivity {
     private ApplicationTranslate applicationTranslate;
     private ArrayList<Sticker> stickers;
 
+    private final Set<Pair<String, String>> selectedForDeletion = new HashSet<>();
+    private StickerDetailsViewModel stickerDetailsViewModel;
     private WhiteListCheckAsyncTask whiteListCheckAsyncTask;
     private StickerPreviewAdapter stickerPreviewAdapter;
     private MaterialButton buttonCreateStickerPackage;
     private GridLayoutManager layoutManager;
+    private Mode currentMode = Mode.NORMAL;
     private RecyclerView recyclerView;
     private StickerPack stickerPack;
     private View alreadyAddedText;
@@ -113,6 +129,24 @@ public class StickerPackDetailsActivity extends StickerPackAddActivity {
             intent.putExtra(EXTRA_STICKER_FORMAT, stickerPack.animatedStickerPack ? ANIMATED_STICKER : STATIC_STICKER);
             startActivity(intent);
         }
+
+        @Override
+        public void onStickerSelected(Sticker sticker) {
+            if (currentMode != Mode.DELETE) {
+                return;
+            }
+
+            Pair<String, String> stickerDataPair = new Pair<>(stickerPack.identifier,
+                    sticker.imageFileName);
+
+            if (selectedForDeletion.contains(stickerDataPair)) {
+                selectedForDeletion.remove(stickerDataPair);
+            } else {
+                selectedForDeletion.add(stickerDataPair);
+            }
+
+            stickerPreviewAdapter.setSelectedIds(selectedForDeletion);
+        }
     };
 
     @Override
@@ -130,6 +164,7 @@ public class StickerPackDetailsActivity extends StickerPackAddActivity {
         ImageView packTrayIcon = findViewById(R.id.tray_image);
         TextView packSizeTextView = findViewById(R.id.pack_size);
         ImageView expandedStickerView = findViewById(R.id.sticker_details_expanded_sticker);
+        stickerDetailsViewModel = new ViewModelProvider(this).get(StickerDetailsViewModel.class);
 
         alreadyAddedText = findViewById(R.id.already_added_text);
         layoutManager = new GridLayoutManager(this, 1);
@@ -142,7 +177,7 @@ public class StickerPackDetailsActivity extends StickerPackAddActivity {
         divider = findViewById(R.id.divider);
 
         if (stickerPreviewAdapter == null) {
-            stickerPreviewAdapter = new StickerPreviewAdapter(getLayoutInflater(), R.drawable.sticker_error,
+            stickerPreviewAdapter = new StickerPreviewAdapter(this, getLayoutInflater(), R.drawable.sticker_error,
                     getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_size),
                     getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_padding), stickerPack,
                     stickers != null ? stickers : new ArrayList<>(), expandedStickerView, onEventClickedListener);
@@ -184,6 +219,40 @@ public class StickerPackDetailsActivity extends StickerPackAddActivity {
 
         findViewById(R.id.sticker_pack_animation_indicator).setVisibility(
                 stickerPack.animatedStickerPack ? View.VISIBLE : View.GONE);
+
+        ImageButton buttonDeleteStickerPackage = findViewById(R.id.action_delete_sticker);
+        buttonDeleteStickerPackage.setOnClickListener(view -> {
+            if (currentMode == Mode.DELETE) {
+                if (!selectedForDeletion.isEmpty()) {
+                    for (Pair<String, String> stickerDataPair : selectedForDeletion) {
+                        stickerDetailsViewModel.startDeleted(stickerDataPair.first, stickerDataPair.second);
+                    }
+
+                    onReloadRequested();
+                }
+
+                selectedForDeletion.clear();
+                currentMode = Mode.NORMAL;
+                stickerPreviewAdapter.setDeleteMode(false);
+            } else {
+                currentMode = Mode.DELETE;
+                stickerPreviewAdapter.setDeleteMode(true);
+                selectedForDeletion.clear();
+                Toast.makeText(this, applicationTranslate.translate(R.string.description_select_sticker_pack_delete)
+                        .log(TAG_LOG, ApplicationTranslate.LoggableString.Level.INFO).get(), Toast.LENGTH_SHORT).show();
+            }
+
+            stickerPreviewAdapter.setSelectedIds(selectedForDeletion);
+        });
+    }
+
+    private void onReloadRequested() {
+        final Intent intent = new Intent(this, EntryActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+        startActivity(intent);
+        finish();
+        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
     }
 
     private final ViewTreeObserver.OnGlobalLayoutListener pageLayoutListener = new ViewTreeObserver.OnGlobalLayoutListener() {
@@ -215,18 +284,6 @@ public class StickerPackDetailsActivity extends StickerPackAddActivity {
         }
     };
 
-    private void launchInfoActivity(String publisherWebsite, String publisherEmail, String privacyPolicyWebsite, String licenseAgreementWebsite, String trayIconUriString) {
-        Intent intent = new Intent(StickerPackDetailsActivity.this, StickerPackMetadataActivity.class);
-        intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_ID, stickerPack.identifier);
-        intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_WEBSITE, publisherWebsite);
-        intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_EMAIL, publisherEmail);
-        intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_PRIVACY_POLICY, privacyPolicyWebsite);
-        intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_LICENSE_AGREEMENT, licenseAgreementWebsite);
-        intent.putExtra(StickerPackDetailsActivity.EXTRA_STICKER_PACK_TRAY_ICON, trayIconUriString);
-
-        startActivity(intent);
-    }
-
     private void openCreateStickerPackActivity(String format) {
         Intent intent = new Intent(StickerPackDetailsActivity.this, StickerPackCreationActivity.class);
         intent.putExtra(EXTRA_STICKER_FORMAT, format);
@@ -241,17 +298,6 @@ public class StickerPackDetailsActivity extends StickerPackAddActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.toolbar, menu);
         return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_info && stickerPack != null) {
-            Uri trayIconUri = BuildStickerUri.buildStickerAssetUri(stickerPack.identifier, stickerPack.trayImageFile);
-            launchInfoActivity(stickerPack.publisherWebsite, stickerPack.publisherEmail,
-                    stickerPack.privacyPolicyWebsite, stickerPack.licenseAgreementWebsite, trayIconUri.toString());
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -314,7 +360,6 @@ public class StickerPackDetailsActivity extends StickerPackAddActivity {
                 if (Thread.currentThread().isInterrupted()) return;
 
                 StickerPackDetailsActivity currentActivity = stickerPackDetailsActivityWeakReference.get();
-
                 if (currentActivity == null) return;
 
                 handler.post(() -> {

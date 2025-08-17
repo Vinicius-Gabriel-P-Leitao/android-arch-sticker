@@ -164,7 +164,7 @@ public class StickerPackListAdapter extends RecyclerView.Adapter<StickerPackList
         }
 
         // NOTE: Só passar null em stickers por que o pacote é valido.
-        setAddButtonAppearance(viewHolder.addButton, stickerPack, null, R.drawable.sticker_3rdparty_add, status);
+        setAddButtonAppearance(viewHolder.addButton, stickerPack, null, R.drawable.ic_add_2_24dp, status);
 
         if (status == StickerPackListItem.Status.WITH_INVALID_STICKER) {
             setAddButtonAppearance(viewHolder.addButton, stickerPack, stickers, R.drawable.sticker_3rdparty_warning,

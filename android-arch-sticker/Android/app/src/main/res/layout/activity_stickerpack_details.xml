@@ -79,6 +79,17 @@
             app:layout_constraintTop_toBottomOf="@+id/author"
             tools:text="Size" />
 
+        <ImageButton
+            android:id="@+id/action_delete_sticker"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:layout_marginEnd="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_trash_24px"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <FrameLayout

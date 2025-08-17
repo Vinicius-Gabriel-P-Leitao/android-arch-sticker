@@ -323,6 +323,7 @@ public abstract class StickerPackCreationBaseActivity extends BaseActivity {
         divider = findViewById(R.id.divider);
 
         stickerPreviewAdapter = new StickerPreviewAdapter(
+                this,
                 getLayoutInflater(),
                 R.drawable.sticker_error,
                 getResources().getDimensionPixelSize(R.dimen.sticker_pack_details_image_size),
