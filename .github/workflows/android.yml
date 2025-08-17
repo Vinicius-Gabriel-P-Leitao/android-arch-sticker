@@ -40,7 +40,10 @@ jobs:
           ${{ runner.os }}-gradle-
 
     - name: Setup Git LFS
-      run: git lfs install
+      run: | 
+        git lfs install
+        git lfs pull
+        git lfs fetch
     
     # 5. Grant execute permission for gradlew
     - name: Grant execute permission for gradlew
