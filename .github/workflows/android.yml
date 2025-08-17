@@ -1,11 +1,9 @@
 name: Build and Release APK
 
-# Trigger: quando criar uma tag que comece com 'v'
 on:
   push:
     tags:
       - 'v*'
-  # Opcional: rodar manualmente
   workflow_dispatch:
 
 jobs:
@@ -16,22 +14,18 @@ jobs:
       contents: write 
     
     steps:
-    # 1. Checkout do código
     - name: Checkout repository
       uses: actions/checkout@v4
     
-    # 2. Setup Java
     - name: Set up JDK 17
       uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
     
-    # 3. Setup Android SDK
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
     
-    # 4. Cache Gradle dependencies
     - name: Cache Gradle dependencies
       uses: actions/cache@v3
       with:
@@ -48,25 +42,29 @@ jobs:
         git lfs pull
         git lfs fetch
     
-    # 5. Grant execute permission for gradlew
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
       working-directory:  android-arch-sticker/Android
     
-    # 8. Build Release APK
+    - name: Decode keystore
+      run: echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > my-release-key.keystore
+      working-directory: android-arch-sticker/Android/app
+
     - name: Build Release APK
       run: ./gradlew assembleRelease
       working-directory: android-arch-sticker/Android
+      env:
+        KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+        KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
     - name: List generated files
       run: ls -R
     
-    # 9. Get version from tag
     - name: Get version from tag
       id: get_version
       run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
     
-    # 10. Create Release
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v1
       with:
@@ -76,7 +74,7 @@ jobs:
           🚀 Nova versão do app Android!
           
           **Mudanças nesta versão:**
-          - [Adicione suas mudanças aqui]
+          - Aplicativo cria figurinhas animadas e estáticas e possuí um editor simples imbuído ao gerar uma só figurinha. 
           
           **Downloads disponíveis:**
           - **APK Universal**: Compatível com todos os dispositivos
