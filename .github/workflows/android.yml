@@ -59,9 +59,7 @@ jobs:
         KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
     - name: List generated APKs
-      run: |
-            ls -lh app/build/outputs/apk/release/
-            ls -lh /app/release
+      run:  ls -lh app/build/outputs/apk/release/
       working-directory: android-arch-sticker/Android
 
     - name: Get version from tag
