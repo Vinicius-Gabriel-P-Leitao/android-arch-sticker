@@ -12,6 +12,9 @@ jobs:
   build-and-release:
     runs-on: ubuntu-latest
     
+    permissions:
+      contents: write 
+    
     steps:
     # 1. Checkout do código
     - name: Checkout repository
@@ -50,26 +53,13 @@ jobs:
       run: chmod +x gradlew
       working-directory:  android-arch-sticker/Android
     
-    # 6. Decode keystore (se usar secrets)
-    - name: Decode Keystore
-      env:
-        KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
-      run: |
-        mkdir -p Android/app/
-        echo "$KEYSTORE_BASE64" | base64 -d > Android/app/keystore.jks
-    
-    # 7. Create keystore.properties
-    - name: Create keystore.properties
-      run: |
-        echo "storePassword=${{ secrets.STORE_PASSWORD }}" > Android/keystore.properties
-        echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> Android/keystore.properties
-        echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> Android/keystore.properties
-        echo "storeFile=app/keystore.jks" >> Android/keystore.properties
-    
     # 8. Build Release APK
     - name: Build Release APK
       run: ./gradlew assembleRelease
       working-directory: android-arch-sticker/Android
+
+    - name: List generated files
+      run: ls -R
     
     # 9. Get version from tag
     - name: Get version from tag
@@ -101,9 +91,7 @@ jobs:
           **Requisitos:**
           - Android 5.0 (API 21) ou superior
         files: |
-          Android/app/build/outputs/apk/release/app-universal-release-unsigned.apk
-          Android/app/build/outputs/apk/release/app-arm64-v8a-release-unsigned.apk
-          Android/app/build/outputs/apk/release/app-armeabi-v7a-release-unsigned.apk
+            **/app/build/outputs/apk/release/*.apk
         draft: false
         prerelease: false
       env:
