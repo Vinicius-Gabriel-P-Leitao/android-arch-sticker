@@ -70,7 +70,10 @@ jobs:
     - name: Build Release APK
       run: |
         ./gradlew assembleRelease
-        ls Android/app/build/outputs/apk/release/
+        ls Android/app/
+        ls Android/app/build/
+        ls Android/app/build/outputs/
+        ls Android/app/build/outputs/apk
       working-directory: android-arch-sticker/Android
     
     # 9. Get version from tag
