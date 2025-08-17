@@ -26,6 +26,12 @@ jobs:
     - name: Setup Android SDK
       uses: android-actions/setup-android@v3
 
+    - name: Setup Git LFS
+      run: | 
+        git lfs install
+        git lfs pull
+        git lfs fetch
+
     - name: Cache Gradle dependencies
       uses: actions/cache@v3
       with:
