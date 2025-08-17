@@ -42,7 +42,7 @@ jobs:
     # 5. Grant execute permission for gradlew
     - name: Grant execute permission for gradlew
       run: chmod +x ./gradlew
-      working-directory: ./Android
+      working-directory:  Android
     
     # 6. Decode keystore (se usar secrets)
     - name: Decode Keystore
