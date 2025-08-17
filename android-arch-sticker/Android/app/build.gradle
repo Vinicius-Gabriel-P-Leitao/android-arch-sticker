@@ -1,18 +1,7 @@
 apply plugin: 'com.android.application'
 
-def keystorePropertiesFile = rootProject.file("keystore.properties")
-def keystoreProperties = new Properties()
-if (keystorePropertiesFile.exists()) {
-    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
-}
 
 android {
-    signingConfigs {
-        prod {
-            storeFile file('C:\\Users\\vinicius\\.android\\keystores\\my-release-key.keystore')
-        }
-    }
-
     //noinspection GradleDependency
     compileSdkVersion 35
 
@@ -40,15 +29,6 @@ android {
         ndk {
             //noinspection ChromeOsAbiSupport
             abiFilters 'arm64-v8a', 'armeabi-v7a'
-        }
-    }
-
-    signingConfigs {
-        release {
-            keyAlias keystoreProperties['keyAlias']
-            keyPassword keystoreProperties['keyPassword']
-            storeFile file('C:/Users/vinicius/.android/keystores/my-release-key.keystore')
-            storePassword keystoreProperties['storePassword']
         }
     }
 
